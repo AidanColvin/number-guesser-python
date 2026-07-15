@@ -1,85 +1,124 @@
-# number-guesser-python
+# Number Guesser
 
-A terminal number-guessing game where **you** think of a number and the **computer** guesses it using binary search.
+A simple terminal number guessing game — but flipped. Instead of you guessing a number the computer picked, **you** pick a whole number between 1 and 100, and the **program tries to guess it**.
 
-## How it works
+Last updated: July 15, 2026
 
-1. You think of a number between 1 and 100.
-2. The computer guesses the midpoint (starts at 50).
-3. You tell it whether the guess is correct.
-4. If not, you tell it whether your number is higher or lower.
-5. The computer narrows its range and guesses again.
+---
 
-Because it halves the range with every guess, the computer always finds the number in **7 guesses or fewer**.
+## The Rules
 
-## Run it
+The rules of the game are simple: you, the user, choose a whole number that is between 1 and 100.
 
-```bash
-python3 number_guesser.py
-```
+The program will prompt you in the terminal to say if the number it presents is the number you initially chose. You respond with **"Yes"** or **"No"**.
 
-## Example
+- If **"Yes"** → the game ends with a win message.
+- If **"No"** → the program will ask if your number is **"Higher"** or **"Lower"** than its guess.
 
-```
-Choose a number between 1 and 100
-Is your number 50? (yes/no): no
-Higher or Lower? higher
-Is your number 75? (yes/no): no
-Higher or Lower? higher
-Is your number 88? (yes/no): no
-Higher or Lower? lower
-Is your number 81? (yes/no): yes
-Got it! Nice one.
-Wanna play again? (yes/no): no
-Thanks for playing!
-```
+The program takes that response (higher or lower) and uses it to narrow down its next guess, then asks again. This repeats — looping until the program correctly guesses your number.
 
-## Functions
+---
 
-| Function | Purpose |
-| --- | --- |
-| `main()` | Outer loop; runs rounds and handles "play again" |
-| `play_round()` | Runs one full round of the game |
-| `binary_search_guess(low, high, guesses_left)` | Recursive binary search core |
-| `midpoint(low, high)` | Returns the middle of a range |
-| `guess_number(current_guess)` | Asks if a guess is correct |
-| `get_direction()` | Asks whether the number is higher or lower |
+## How the Guessing Works
 
-## Function flow
+The program keeps track of a range (starting at 1 as the lower limit and 100 as the upper limit) and guesses the **midpoint** of that range each time.
+
+- If you say **"Higher"** → the lower limit moves up to just above the last guess.
+- If you say **"Lower"** → the upper limit moves down to just below the last guess.
+- The program then recalculates the midpoint between the new limits — that's the next guess.
+
+This repeats, narrowing the range in half each round, until the guess matches your number.
+
+---
+
+## How to Run It
+
+1. Make sure the file is saved with a `.py` extension, e.g. `number-guesser-4.py`.
+2. Open a terminal and navigate to the folder the file is in:
+   ```bash
+   cd path/to/your/folder
+   ```
+3. Run it:
+   ```bash
+   python number-guesser-4.py
+   ```
+   or, if that doesn't work:
+   ```bash
+   python3 number-guesser-4.py
+   ```
+4. Think of your number, then answer the prompts as they come.
+
+---
+
+## Code Structure
+
+### Helper Functions
+Each helper function does one specific thing only:
+
+| Function | What it does |
+|---|---|
+| `get_yes_no_input(prompt)` | Gets raw user input, stripped and lowercased |
+| `is_yes(response)` | Returns True if the response means yes |
+| `is_higher(response)` | Returns True if the response means higher, False if lower |
+| `calculate_midpoint(low, high)` | Returns the midpoint between the low and high bound |
+| `update_low(guess)` | Returns the new low bound after a "Higher" response |
+| `update_high(guess)` | Returns the new high bound after a "Lower" response |
+| `print_guess(guess)` | Prints the question asking if the guess is correct |
+| `print_intro()` | Prints the welcome message and rules |
+| `print_win_message()` | Prints the "Good game!" message when the guess is correct |
+
+### Main Loop
+1. Print the intro.
+2. Set `low = 1`, `high = 100`, and calculate the starting guess (the midpoint).
+3. Loop:
+   - Print the guess and ask Yes or No.
+   - If Yes → print the win message and break out of the loop.
+   - If No → ask Higher or Lower, update the low or high bound accordingly, and recalculate the midpoint for the next guess.
+4. Repeat until the program correctly guesses the number.
+
+---
+
+## Function Flow
 
 ```mermaid
 flowchart TD
     %% Functions
-    main
+    main_loop
 
-    play_round
-
-    binary_search_guess
-
-    midpoint
-    guess_number
-    get_direction
+    print_intro
+    calculate_midpoint
+    print_guess
+    get_yes_no_input
+    is_yes
+    print_win_message
+    is_higher
+    update_low
+    update_high
 
     %% Calls
-    main --> play_round
+    main_loop --> print_intro
+    main_loop --> calculate_midpoint
+    main_loop -->|"each iteration"| print_guess
+    main_loop --> get_yes_no_input
+    main_loop --> is_yes
 
-    play_round --> binary_search_guess
+    is_yes -->|"True"| print_win_message
+    is_yes -->|"False"| get_yes_no_input
 
-    binary_search_guess --> midpoint
-    binary_search_guess --> guess_number
-    binary_search_guess --> get_direction
-    binary_search_guess -->|"recursive call"| binary_search_guess
+    get_yes_no_input --> is_higher
+
+    is_higher -->|"True"| update_low
+    is_higher -->|"False"| update_high
+
+    update_low --> calculate_midpoint
+    update_high --> calculate_midpoint
+
+    calculate_midpoint -->|"loop back"| main_loop
 ```
 
-## The algorithm
+---
 
-The game is a live demonstration of **binary search**. Each guess splits the remaining range in half, so the number of guesses needed grows only with the *logarithm* of the range size:
+## Notes / Known Limitations
 
-- 1–100 → at most 7 guesses (`log₂(100) ≈ 6.6`)
-- 1–1,000 → at most 10 guesses
-- 1–1,000,000 → at most 20 guesses
-
-## Requirements
-
-- Python 3.6+
-- No external dependencies
+- The game assumes you answer Higher/Lower consistently and truthfully — if your answers contradict each other, the range could narrow incorrectly and the program may not converge on the right number.
+- There's no restart option built in yet after a win — the program just prints the win message and ends. "Another round" would need to be added as a follow-up feature.

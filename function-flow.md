@@ -1,4 +1,4 @@
-# Function flow / DRAFT 
+# Function Flow
 Function flow for the number guesser program
 ```mermaid
 flowchart TD
