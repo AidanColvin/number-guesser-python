@@ -3,23 +3,35 @@ Function flow for the number guesser program
 ```mermaid
 flowchart TD
     %% Functions
-    main
+    main_loop
 
-    play_round
-
-    binary_search_guess
-
-    midpoint
-    guess_number
-    get_direction
+    print_intro
+    calculate_midpoint
+    print_guess
+    get_yes_no_input
+    is_yes
+    print_win_message
+    is_higher
+    update_low
+    update_high
 
     %% Calls
-    main --> play_round
+    main_loop --> print_intro
+    main_loop --> calculate_midpoint
+    main_loop -->|"each iteration"| print_guess
+    main_loop --> get_yes_no_input
+    main_loop --> is_yes
 
-    play_round --> binary_search_guess
+    is_yes -->|"True"| print_win_message
+    is_yes -->|"False"| get_yes_no_input
 
-    binary_search_guess --> midpoint
-    binary_search_guess --> guess_number
-    binary_search_guess --> get_direction
-    binary_search_guess -->|"recursive call"| binary_search_guess
+    get_yes_no_input --> is_higher
+
+    is_higher -->|"True"| update_low
+    is_higher -->|"False"| update_high
+
+    update_low --> calculate_midpoint
+    update_high --> calculate_midpoint
+
+    calculate_midpoint -->|"loop back"| main_loop
 ```
